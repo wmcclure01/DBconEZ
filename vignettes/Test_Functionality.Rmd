@@ -1,0 +1,94 @@
+---
+title: "Test_Functionality"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Test_Functionality}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+This test markdown covers and example workflow of a user of the package. 
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Bring in the new package
+```{r setup}
+library(DBconEZ)
+```
+
+Check all available ODBC drivers
+```{r}
+sort(unique(odbcListDrivers()[[1]])) 
+```
+
+
+
+
+Next establish a connection to a DB. In this example we are checking a MySQL db, for the purposes of this exercise only. IP address is internal, password and user are self-expiring after one login.
+```{r}
+con <- DBconnect(RMySQL::MySQL(), 
+                 dbname = "sakila", 
+                 host = "192.168.50.71", 
+                 port = 49153,
+                 user = "root",
+                 password = "Camplovers01")
+
+```
+
+
+Next we can use the dm_from_src function to creat a DM (data model) of the available schemas/tables. The example connection connects to only a single schema 
+```{r}
+con_dm <- dm_from_src(con, learn_keys = FALSE) 
+```
+
+We can then see if an ERD diagram can be drawn from available information of the Database *This is an experimental function in the dm package and as such is quite buggy itself)
+
+```{r}
+dm_draw(con_dm)
+
+```
+
+We can then test a query of the database using an analytical type of request from a stakeholder
+##You want to run an email marketing campaign in Canada, for which you will need the names and email addresses of all Canadian customers. 
+
+```{r}
+email_results <- dbGetQuery(con, "select concat(c.first_name,' ',c.last_name) as 'Name', c.email as 'E-mail'
+	from customer as c
+	join address as a on c.address_id = a.address_id
+	join city as cy on a.city_id = cy.city_id
+	join country as ct on ct.country_id = cy.country_id
+	where ct.country = 'Canada';")
+
+```
+
+```{r comment='', echo=FALSE, results='asis'}
+ knitr::kable(email_results, caption = "Email Query", floating.environment="sidewaystable")
+```
+
+
+Let's try a more complicated query
+##List the top five genres in gross revenue in descending order
+```{r}
+sales_dollars_genre <- dbGetQuery(con, "select c.name as 'Film', sum(p.amount) as 'Gross Revenue'
+	from category as c
+	join film_category as fc on fc.category_id = c.category_id
+	join inventory as i on i.film_id = fc.film_id
+	join rental as r on r.inventory_id = i.inventory_id
+	join payment as p on p.rental_id = r.rental_id
+	group by c.name
+	order by sum(p.amount) desc
+	limit 5;
+")
+
+
+```
+
+```{r comment='', echo=FALSE, results='asis'}
+ knitr::kable(sales_dollars_genre, caption = "Sales by Genre", floating.environment="sidewaystable")
+```
+##We see here that the BDconEZ package aids greatly in streamlining the process to explore and query data in a single place.
+Future versions will include integration of the gWidgets GUI interface to streamline selection and querying inline code.
+
