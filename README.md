@@ -57,8 +57,10 @@ Please make sure to update tests as appropriate.
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
-##R final project package
-See rpubs Markdown 
- http://rpubs.com/Goldendesign04/895779
-  See wordpress writeup
+
+## R final project package
+<p> See rpubs Markdown <br>
+ http://rpubs.com/Goldendesign04/895779 <br>
+  See wordpress writeup <br>
 https://goldendesignanalytics.wordpress.com/2022/04/28/final-project-r-programming/
+</p>
