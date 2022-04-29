@@ -1,7 +1,5 @@
 # DBconEZ
 
-# DBconEZ
-
 DBconEZ (database connection EZ) is a package designed in bringing the most useful functions for SQL based exploration and retrieval of a data set
 
 ## Installation
